@@ -29,8 +29,8 @@ A production-ready REST API built with Laravel 12 for managing inventory and sal
 ## Technology Stack
 
 - **Framework**: Laravel 12.x
-- **PHP**: 8.4+
-- **Database**: PostgreSQL 18.0+
+- **PHP**: 8.4
+- **Database**: PostgreSQL 17.0
 - **Cache**: Redis
 - **Queue**: Database driver (configurable to Redis/SQS)
 - **Testing**: Pest 4.x
@@ -48,17 +48,18 @@ app/
 │   ├── Inventory/
 │   │   ├── DTO/              # Data Transfer Objects
 │   │   ├── Repository/       # Repository interfaces
+│   │   ├── Enum/             # Model enums
 │   │   └── Service/          # Business logic services
 │   └── Sales/
 │       ├── DTO/
 │       ├── Repository/
+│       ├── Enum/
 │       └── Service/
-├── Infrastructure/            # Technical implementations
-│   └── Repositories/         # Concrete repository implementations
 ├── Http/
 │   ├── Controllers/Api/      # API controllers
 │   ├── Requests/             # Form request validation
 │   └── Resources/            # API response resources
+├── Repository/                # Concrete repository implementations
 ├── Models/                    # Eloquent models
 ├── Events/                    # Domain events
 ├── Listeners/                 # Event listeners
@@ -72,7 +73,6 @@ app/
 2. **Service Layer**: Encapsulates business logic
 3. **DTO Pattern**: Immutable data transfer objects
 4. **Event-Driven**: Domain events trigger async operations
-5. **CQRS**: Separation of read and write operations
 
 ## Installation
 
@@ -121,16 +121,16 @@ docker-compose -f env/docker-compose.yml exec php php artisan migrate
 ### Seed Database
 
 The seeder creates:
-- 3 companies
+- 2 companies
 - 200 products per company (600 total)
 - Initial inventory entries
-- 100,000 sales records with items
+- 1,000,000 sales records with items
 
 ```bash
 docker-compose -f env/docker-compose.yml exec php php artisan db:seed
 ```
 
-**Note**: Seeding 100k sales may take 5-10 minutes depending on your system.
+**Note**: Seeding 1000k sales may take 5-10 minutes depending on your system.
 
 ## API Documentation
 
@@ -140,7 +140,7 @@ Base URL: `http://localhost/api`
 
 #### Get Inventory Status
 ```http
-GET /api/inventory
+GET /api/inventory?company_id=1
 ```
 
 **Response:**
@@ -152,10 +152,10 @@ GET /api/inventory
       "sku": "PROD-001",
       "name": "Product Name",
       "current_stock": 150,
-      "cost_price": "100.00",
-      "sale_price": "150.00",
-      "total_value": "15000.00",
-      "projected_profit": "7500.00"
+      "cost_price": 100.00,
+      "sale_price": 150.00,
+      "total_value": 15000.00,
+      "projected_profit": 7500.00
     }
   ]
 }
@@ -169,6 +169,7 @@ Content-Type: application/json
 {
   "product_id": 1,
   "quantity": 100,
+  "company_id": 1,
   "unit_cost": 50.00,
   "notes": "Initial stock"
 }
@@ -185,6 +186,7 @@ POST /api/sales
 Content-Type: application/json
 
 {
+  "company_id": 1,
   "items": [
     {
       "product_id": 1,
@@ -206,9 +208,9 @@ Content-Type: application/json
   "data": {
     "id": 1,
     "sale_number": "SALE-20250101-00001",
-    "total_amount": "600.00",
-    "total_cost": "400.00",
-    "total_profit": "200.00",
+    "total_amount": 600.00,
+    "total_cost": 400.00,
+    "total_profit": 200.00,
     "status": "pending",
     "sale_date": "2025-01-01T10:00:00Z",
     "items": [...]
@@ -225,10 +227,12 @@ GET /api/sales/{id}
 
 #### Get Sales Report
 ```http
-GET /api/reports/sales?start_date=2024-01-01&end_date=2024-12-31&sku=PROD-001&per_page=20
+GET /api/reports/sales?start_date=2024-01-01&end_date=2024-12-31&sku=PROD-001&per_page=20&cursor=...&company_id=1
 ```
 
 **Query Parameters:**
+- `company_id` (required): Company ID
+- `cursor` (optional): Cursor for pagination
 - `start_date` (required): Start date in Y-m-d format
 - `end_date` (required): End date in Y-m-d format
 - `sku` (optional): Filter by product SKU
@@ -240,8 +244,8 @@ GET /api/reports/sales?start_date=2024-01-01&end_date=2024-12-31&sku=PROD-001&pe
   "data": [...],
   "metrics": {
     "total_sales": 150,
-    "total_amount": "75000.00",
-    "total_profit": "25000.00",
+    "total_amount": 75000.00,
+    "total_profit": 25000.00,
     "total_quantity": 500
   },
   "pagination": {
@@ -281,6 +285,9 @@ docker-compose -f env/docker-compose.yml exec php vendor/bin/pint
 - Composite indexes on frequently queried columns
 - Indexes on foreign keys and status fields
 - Covering indexes for report queries
+- Partitioning on sales table by sale_date
+- Partitioning on sale_items table by sale_date
+- Sharding on all tables by company_id
 
 ### 2. Query Optimization
 - Eager loading relationships to prevent N+1 queries
@@ -369,4 +376,4 @@ docker-compose -f env/docker-compose.yml exec php php artisan queue:work --tries
 
 ## License
 
-This project is proprietary software.
+This project is under the Apache 2.0 license

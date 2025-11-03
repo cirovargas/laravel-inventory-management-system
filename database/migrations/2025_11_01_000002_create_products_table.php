@@ -27,7 +27,6 @@ return new class extends Migration
             $table->softDeletes();
             $table->primary(['company_id', 'id']);
 
-            // Indexes for performance
             $table->index('is_active');
             $table->index(['company_id', 'is_active']);
             $table->index('created_at');

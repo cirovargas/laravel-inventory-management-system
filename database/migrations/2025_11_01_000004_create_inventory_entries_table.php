@@ -28,7 +28,6 @@ return new class extends Migration
             $table->timestamps();
             $table->primary(['company_id', 'id']);
 
-            // Indexes for performance and queries
             $table->index(['company_id', 'product_id']);
             $table->index(['product_id', 'type']);
             $table->index('entry_date');

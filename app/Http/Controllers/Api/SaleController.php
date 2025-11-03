@@ -20,15 +20,12 @@ final class SaleController extends Controller
 
     public function store(StoreSaleRequest $request): JsonResponse
     {
-        // For now, using company_id = 1 as default
-        // In production, this would come from authenticated user's company
-        $companyId = 1;
+        $companyId = $request->input('company_id');
 
         $data = CreateSaleData::fromArray($companyId, $request->validated());
 
         $sale = $this->saleService->createSale($data);
 
-        // Dispatch event to trigger async inventory update
         SaleCompleted::dispatch($sale);
 
         return response()->json([

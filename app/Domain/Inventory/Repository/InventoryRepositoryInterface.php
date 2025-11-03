@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Inventory\Repository;
 
 use App\Models\InventoryEntry;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Collection;
 
 interface InventoryRepositoryInterface
 {

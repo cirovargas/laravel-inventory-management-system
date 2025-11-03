@@ -17,6 +17,7 @@ final class StoreSaleRequest extends FormRequest
     {
         return [
             'items' => ['required', 'array', 'min:1'],
+            'company_id' => ['required', 'integer', 'exists:companies,id'],
             'items.*.product_id' => ['required', 'integer', 'exists:products,id'],
             'items.*.quantity' => ['required', 'integer', 'min:1'],
             'notes' => ['nullable', 'string', 'max:1000'],
@@ -26,6 +27,8 @@ final class StoreSaleRequest extends FormRequest
     public function messages(): array
     {
         return [
+            'company_id.required' => 'The company ID is required.',
+            'company_id.exists' => 'The selected company does not exist.',
             'items.required' => 'At least one item is required.',
             'items.min' => 'At least one item is required.',
             'items.*.product_id.required' => 'Each item must have a product ID.',

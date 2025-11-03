@@ -11,6 +11,7 @@ use App\Http\Requests\StoreInventoryEntryRequest;
 use App\Http\Resources\InventoryEntryResource;
 use App\Http\Resources\InventoryStatusResource;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 final class InventoryController extends Controller
@@ -19,11 +20,9 @@ final class InventoryController extends Controller
         private readonly InventoryService $inventoryService,
     ) {}
 
-    public function index(): AnonymousResourceCollection
+    public function index(Request $request): AnonymousResourceCollection
     {
-        // For now, using company_id = 1 as default
-        // In production, this would come from authenticated user's company
-        $companyId = 1;
+        $companyId = $request->integer('company_id');
 
         $inventory = $this->inventoryService->getInventoryStatus($companyId);
 
@@ -32,9 +31,7 @@ final class InventoryController extends Controller
 
     public function store(StoreInventoryEntryRequest $request): JsonResponse
     {
-        // For now, using company_id = 1 as default
-        // In production, this would come from authenticated user's company
-        $companyId = 1;
+        $companyId = $request->integer('company_id');
 
         $data = new InventoryEntryData(
             companyId: $companyId,

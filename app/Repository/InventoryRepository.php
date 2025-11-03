@@ -7,7 +7,7 @@ namespace App\Repository;
 use App\Domain\Inventory\Repository\InventoryRepositoryInterface;
 use App\Models\InventoryEntry;
 use App\Models\Product;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Collection;
 
 final class InventoryRepository implements InventoryRepositoryInterface
 {

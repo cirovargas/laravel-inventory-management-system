@@ -9,7 +9,7 @@ use App\Domain\Inventory\Enum\InventoryType;
 use App\Domain\Inventory\Repository\InventoryRepositoryInterface;
 use App\Domain\Inventory\Repository\ProductRepositoryInterface;
 use App\Models\InventoryEntry;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 

@@ -35,7 +35,8 @@ final class SaleService
                 }
             }
 
-            // Create the sale
+            $saleDate = now();
+
             $sale = $this->saleRepository->create([
                 'company_id' => $data->companyId,
                 'sale_number' => $this->generateSaleNumber(),
@@ -43,7 +44,7 @@ final class SaleService
                 'total_cost' => 0,
                 'total_profit' => 0,
                 'status' => SaleStatus::PENDING,
-                'sale_date' => now(),
+                'sale_date' => $saleDate,
                 'notes' => $data->notes,
             ]);
 
@@ -61,6 +62,8 @@ final class SaleService
                     'sale_id' => $sale->id,
                     'product_id' => $product->id,
                     'quantity' => $item->quantity,
+                    'company_id' => $data->companyId,
+                    'sale_date' => $saleDate,
                     'unit_price' => $product->sale_price,
                     'unit_cost' => $product->cost_price,
                     'subtotal' => $subtotal,

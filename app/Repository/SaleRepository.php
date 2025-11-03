@@ -89,35 +89,43 @@ final class SaleRepository implements SaleRepositoryInterface
         string $endDate,
         ?string $sku = null
     ): array {
-        $qtyBySale = DB::table('sale_items')
-            ->select('sale_id', DB::raw('SUM(quantity) AS qty'))
-            ->where('company_id', $companyId)
-            ->groupBy('sale_id');
 
-        $metrics = DB::table('sales')
-            ->leftJoinSub($qtyBySale, 'si', fn ($j) => $j->on('si.sale_id', '=', 'sales.id'))
-            ->where('sales.company_id', $companyId)
-            ->where('sales.status', SaleStatus::COMPLETED)
-            ->whereBetween('sales.sale_date', [$startDate, $endDate])
-            ->whereNull('sales.deleted_at')
-            ->when($sku, function ($query, $sku) use ($companyId, $startDate, $endDate) {
-                $query->whereExists(function ($q) use ($sku, $companyId, $startDate, $endDate) {
-                    $q->from('sale_items')
-                        ->where('company_id', $companyId)
-                        ->whereBetween('sale_date', [$startDate, $endDate])
-                        ->whereColumn('sales.id', 'sale_items.sale_id')
-                        ->whereExists(function ($q2) use ($sku, $companyId) {
-                            $q2->from('products')
-                                ->whereColumn('sale_items.product_id', 'products.id')
-                                ->where('sku', $sku)
-                                ->where('products.company_id', $companyId)
-                                ->whereNull('products.deleted_at');
-                        });
-                });
-            })->selectRaw('COUNT(*) AS total_sales,
-                 SUM(sales.total_amount) AS total_amount,
-                 SUM(sales.total_profit) AS total_profit,
-                 COALESCE(SUM(si.qty), 0) AS total_quantity')->first();
+        $candidateSales = DB::table('sale_items as si')
+            ->join('products as p', 'p.id', '=', 'si.product_id')
+            ->where('p.company_id', $companyId)
+            ->when($sku, function ($query, $sku) {
+                $query->where('p.sku', $sku);
+            })
+            ->whereNull('p.deleted_at')
+            ->where('si.company_id', $companyId)
+            ->where('si.sale_date', '>=', $startDate)
+            ->where('si.sale_date', '<', $endDate)
+            ->distinct()
+            ->select('si.sale_id');
+
+        $aggItems = DB::table('sale_items as si')
+            ->select('si.sale_id', DB::raw('SUM(si.quantity) AS qty'))
+            ->where('si.company_id', $companyId)
+            ->whereIn('si.sale_id', $candidateSales)
+            ->groupBy('si.sale_id');
+
+        $metrics = DB::table('sales as s')
+            ->joinSub($candidateSales, 'cs', function ($j) {
+                $j->on('cs.sale_id', '=', 's.id');
+            })
+            ->leftJoinSub($aggItems, 'a', function ($j) {
+                $j->on('a.sale_id', '=', 's.id');
+            })
+            ->where('s.company_id', $companyId)
+            ->where('s.status', 'completed')
+            ->whereNull('s.deleted_at')
+            ->where('s.sale_date', '>=', $startDate)
+            ->where('s.sale_date', '<', $endDate)
+            ->selectRaw('COUNT(*) AS total_sales,
+                 SUM(s.total_amount) AS total_amount,
+                 SUM(s.total_profit) AS total_profit,
+                 COALESCE(SUM(a.qty), 0) AS total_quantity')
+            ->first();
 
         return [
             'total_sales' => (int) ($metrics->total_sales ?? 0),
