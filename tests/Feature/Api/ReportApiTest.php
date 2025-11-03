@@ -45,7 +45,7 @@ beforeEach(function () {
 });
 
 it('retrieves sales report successfully', function () {
-    $response = $this->getJson('/api/reports/sales?start_date='.now()->subDays(10)->format('Y-m-d').'&end_date='.now()->format('Y-m-d'));
+    $response = $this->getJson('/api/reports/sales?start_date='.now()->subDays(10)->format('Y-m-d').'&end_date='.now()->format('Y-m-d').'&company_id='.$this->company->id);
 
     $response->assertSuccessful()
         ->assertJsonStructure([
@@ -67,10 +67,10 @@ it('retrieves sales report successfully', function () {
                 'total_quantity',
             ],
             'pagination' => [
-                'current_page',
+                'cursor',
+                'next_cursor',
+                'previous cursor',
                 'per_page',
-                'total',
-                'last_page',
             ],
         ]);
 });
@@ -83,21 +83,21 @@ it('validates required fields for sales report', function () {
 });
 
 it('validates date format for sales report', function () {
-    $response = $this->getJson('/api/reports/sales?start_date=invalid&end_date=invalid');
+    $response = $this->getJson('/api/reports/sales?start_date=invalid&end_date=invalid&company_id=1');
 
     $response->assertUnprocessable()
         ->assertJsonValidationErrors(['start_date', 'end_date']);
 });
 
 it('validates end date is after or equal to start date', function () {
-    $response = $this->getJson('/api/reports/sales?start_date=2024-12-31&end_date=2024-01-01');
+    $response = $this->getJson('/api/reports/sales?start_date=2024-12-31&end_date=2024-01-01&company_id=1');
 
     $response->assertUnprocessable()
         ->assertJsonValidationErrors(['end_date']);
 });
 
 it('filters sales by date range correctly', function () {
-    $response = $this->getJson('/api/reports/sales?start_date='.now()->subDays(4)->format('Y-m-d').'&end_date='.now()->format('Y-m-d'));
+    $response = $this->getJson('/api/reports/sales?start_date='.now()->subDays(4)->format('Y-m-d').'&end_date='.now()->format('Y-m-d').'&company_id='.$this->company->id);
 
     $response->assertSuccessful();
 
@@ -115,7 +115,7 @@ it('filters sales by SKU correctly', function () {
 
     SaleItem::factory()->forSale($sale)->forProduct($anotherProduct)->create();
 
-    $response = $this->getJson('/api/reports/sales?start_date='.now()->subDays(10)->format('Y-m-d').'&end_date='.now()->format('Y-m-d').'&sku='.$this->product->sku);
+    $response = $this->getJson('/api/reports/sales?start_date='.now()->subDays(10)->format('Y-m-d').'&end_date='.now()->format('Y-m-d').'&sku='.$this->product->sku).'&company_id='.$this->company->id;
 
     $response->assertSuccessful();
 
@@ -125,7 +125,7 @@ it('filters sales by SKU correctly', function () {
 });
 
 it('calculates metrics correctly', function () {
-    $response = $this->getJson('/api/reports/sales?start_date='.now()->subDays(10)->format('Y-m-d').'&end_date='.now()->format('Y-m-d'));
+    $response = $this->getJson('/api/reports/sales?start_date='.now()->subDays(10)->format('Y-m-d').'&end_date='.now()->format('Y-m-d').'&company_id='.$this->company->id);
 
     $response->assertSuccessful();
 

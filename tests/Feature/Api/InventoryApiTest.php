@@ -44,6 +44,7 @@ it('retrieves inventory status successfully', function () {
 it('creates inventory entry successfully', function () {
     $response = $this->postJson('/api/inventory', [
         'product_id' => $this->product->id,
+        'company_id' => $this->company->id,
         'quantity' => 100,
         'unit_cost' => 50.00,
         'notes' => 'Initial stock',
@@ -81,6 +82,7 @@ it('validates required fields when creating inventory entry', function () {
 it('validates product exists when creating inventory entry', function () {
     $response = $this->postJson('/api/inventory', [
         'product_id' => 999999,
+        'company_id' => $this->company->id,
         'quantity' => 100,
         'unit_cost' => 50.00,
     ]);
@@ -92,6 +94,7 @@ it('validates product exists when creating inventory entry', function () {
 it('validates quantity is positive when creating inventory entry', function () {
     $response = $this->postJson('/api/inventory', [
         'product_id' => $this->product->id,
+        'company_id' => $this->company->id,
         'quantity' => 0,
         'unit_cost' => 50.00,
     ]);
@@ -103,6 +106,7 @@ it('validates quantity is positive when creating inventory entry', function () {
 it('validates unit cost is non-negative when creating inventory entry', function () {
     $response = $this->postJson('/api/inventory', [
         'product_id' => $this->product->id,
+        'company_id' => $this->company->id,
         'quantity' => 100,
         'unit_cost' => -10.00,
     ]);
@@ -118,6 +122,7 @@ it('invalidates cache after creating inventory entry', function () {
 
     $this->postJson('/api/inventory', [
         'product_id' => $this->product->id,
+        'company_id' => $this->company->id,
         'quantity' => 100,
         'unit_cost' => 50.00,
     ]);

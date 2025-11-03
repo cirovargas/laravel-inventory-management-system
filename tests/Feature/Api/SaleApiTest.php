@@ -39,6 +39,7 @@ it('creates a sale successfully', function () {
     Event::fake();
 
     $response = $this->postJson('/api/sales', [
+        'company_id' => $this->company->id,
         'items' => [
             ['product_id' => $this->product1->id, 'quantity' => 2],
             ['product_id' => $this->product2->id, 'quantity' => 1],
@@ -84,6 +85,7 @@ it('validates required fields when creating sale', function () {
 
 it('validates items array is not empty', function () {
     $response = $this->postJson('/api/sales', [
+        'company_id' => $this->company->id,
         'items' => [],
     ]);
 
@@ -93,6 +95,7 @@ it('validates items array is not empty', function () {
 
 it('validates each item has product_id and quantity', function () {
     $response = $this->postJson('/api/sales', [
+        'company_id' => $this->company->id,
         'items' => [
             ['quantity' => 2],
         ],
@@ -104,6 +107,7 @@ it('validates each item has product_id and quantity', function () {
 
 it('validates product exists in items', function () {
     $response = $this->postJson('/api/sales', [
+        'company_id' => $this->company->id,
         'items' => [
             ['product_id' => 999999, 'quantity' => 2],
         ],
@@ -115,6 +119,7 @@ it('validates product exists in items', function () {
 
 it('validates quantity is positive in items', function () {
     $response = $this->postJson('/api/sales', [
+        'company_id' => $this->company->id,
         'items' => [
             ['product_id' => $this->product1->id, 'quantity' => 0],
         ],
@@ -154,6 +159,7 @@ it('returns 404 when sale not found', function () {
 
 it('calculates totals correctly when creating sale', function () {
     $response = $this->postJson('/api/sales', [
+        'company_id' => $this->company->id,
         'items' => [
             ['product_id' => $this->product1->id, 'quantity' => 2],
             ['product_id' => $this->product2->id, 'quantity' => 1],
