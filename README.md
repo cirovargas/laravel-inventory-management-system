@@ -91,32 +91,11 @@ cd inventory-management-api
 
 2. **Start Docker containers**
 ```bash
-docker-compose -f env/docker-compose.yml up -d
+docker-compose up -d
 ```
 
-3. **Install dependencies**
-```bash
-docker-compose -f env/docker-compose.yml exec php composer install
-```
-
-4. **Configure environment**
-```bash
-cp .env.example .env
-# Update database and cache credentials in .env
-```
-
-5. **Generate application key**
-```bash
-docker-compose -f env/docker-compose.yml exec php php artisan key:generate
-```
 
 ## Database Setup
-
-### Run Migrations
-
-```bash
-docker-compose -f env/docker-compose.yml exec php php artisan migrate
-```
 
 ### Seed Database
 
@@ -127,14 +106,14 @@ The seeder creates:
 - 1,000,000 sales records with items
 
 ```bash
-docker-compose -f env/docker-compose.yml exec php php artisan db:seed
+docker compose exec php php artisan db:seed
 ```
 
-**Note**: Seeding 1000k sales may take 5-10 minutes depending on your system.
+**Note**: Seeding 1M sales may take 5-10 minutes depending on your system.
 
 ## API Documentation
 
-Base URL: `http://localhost/api`
+Base URL: `http://localhost:3000/api`
 
 ### Inventory Endpoints
 
@@ -254,22 +233,22 @@ GET /api/reports/sales?start_date=2024-01-01&end_date=2024-12-31&sku=PROD-001&pe
 
 ### Run All Tests
 ```bash
-docker-compose -f env/docker-compose.yml exec php php artisan test
+docker compose exec php php artisan test
 ```
 
 ### Run Specific Test File
 ```bash
-docker-compose -f env/docker-compose.yml exec php php artisan test tests/Feature/Api/SaleApiTest.php
+docker compose exec php php artisan test tests/Feature/Api/SaleApiTest.php
 ```
 
 ### Run Tests with Filter
 ```bash
-docker-compose -f env/docker-compose.yml exec php php artisan test --filter=creates_a_sale
+docker compose exec php php artisan test --filter=creates_a_sale
 ```
 
 ### Code Formatting
 ```bash
-docker-compose -f env/docker-compose.yml exec php vendor/bin/pint
+docker compose exec php vendor/bin/pint
 ```
 
 ## Performance Optimizations
@@ -306,15 +285,15 @@ Runs daily at 2:00 AM to identify products with no inventory updates in 90+ days
 
 ```bash
 # Manual execution
-docker-compose -f env/docker-compose.yml exec php php artisan inventory:archive-stale
+docker compose exec php php artisan inventory:archive-stale
 
 # With custom days threshold
-docker-compose -f env/docker-compose.yml exec php php artisan inventory:archive-stale --days=60
+docker compose exec php php artisan inventory:archive-stale --days=60
 ```
 
 ### Start Scheduler
 ```bash
-docker-compose -f env/docker-compose.yml exec php php artisan schedule:work
+docker compose exec php php artisan schedule:work
 ```
 
 ## Architecture Decisions
@@ -366,7 +345,7 @@ QUEUE_CONNECTION=redis
 
 Start queue workers:
 ```bash
-docker-compose -f env/docker-compose.yml exec php php artisan queue:work --tries=3
+docker-compose exec php php artisan queue:work --tries=3
 ```
 
 ## License

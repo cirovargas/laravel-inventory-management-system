@@ -33,9 +33,11 @@ ENV COMPOSER_ALLOW_SUPERUSER=1
 COPY ./env/php/php.ini /usr/local/etc/php/php.ini
 COPY . /app
 
-RUN composer install --no-scripts --no-progress --no-suggest --prefer-dist --optimize-autoloader && \
+RUN cp .env.example .env && \
+    composer install --no-scripts --no-progress --no-suggest --prefer-dist --optimize-autoloader && \
     composer dump-autoload -o && \
     composer clear-cache && \
+    php artisan key:generate && \
     php artisan optimize && \
     php artisan config:cache && \
     php artisan event:cache && \
@@ -43,4 +45,4 @@ RUN composer install --no-scripts --no-progress --no-suggest --prefer-dist --opt
 #php artisan queue:work
 
 
-CMD [  "php", "-d", "variables_order=EGPCS", "artisan", "octane:start", "--server=swoole", "--host=0.0.0.0", "--port=3000", "--workers=4", "--task-workers=6"]
+CMD [ "php", "artisan", "migrate", "--force", "--silent", "--quiet", "--no-interaction", "&&",  "php", "-d", "variables_order=EGPCS", "artisan", "octane:start", "--server=swoole", "--host=0.0.0.0", "--port=3000", "--workers=4", "--task-workers=6"]
