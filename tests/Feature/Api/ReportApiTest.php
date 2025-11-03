@@ -144,6 +144,5 @@ it('paginates results correctly', function () {
 
     $pagination = $response->json('pagination');
 
-    // Cursor pagination doesn't have total or last_page
     expect($pagination['per_page'])->toBe(1);
 });
