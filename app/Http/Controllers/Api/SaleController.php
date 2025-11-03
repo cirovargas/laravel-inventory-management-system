@@ -6,11 +6,12 @@ namespace App\Http\Controllers\Api;
 
 use App\Domain\Sales\DTO\CreateSaleData;
 use App\Domain\Sales\Service\SaleService;
-use App\Events\SaleCompleted;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreSaleRequest;
 use App\Http\Resources\SaleResource;
+use App\Jobs\ProcessSaleJob;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Str;
 
 final class SaleController extends Controller
 {
@@ -24,13 +25,15 @@ final class SaleController extends Controller
 
         $data = CreateSaleData::fromArray($companyId, $request->validated());
 
-        $sale = $this->saleService->createSale($data);
+        // Generate a unique tracking ID for this sale
+        $trackingId = Str::uuid()->toString();
 
-        SaleCompleted::dispatch($sale);
+        // Dispatch the job to process the sale asynchronously
+        ProcessSaleJob::dispatch($data, $trackingId);
 
         return response()->json([
-            'message' => 'Sale created successfully and is being processed',
-            'data' => new SaleResource($sale->load('items.product')),
+            'message' => 'Sale is being processed',
+            'tracking_id' => $trackingId,
         ], 202);
     }
 

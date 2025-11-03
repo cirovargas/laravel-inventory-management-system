@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-use App\Events\SaleCompleted;
+use App\Jobs\ProcessSaleJob;
 use App\Models\Company;
 use App\Models\InventoryEntry;
 use App\Models\Product;
 use App\Models\Sale;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Queue;
 
 uses(RefreshDatabase::class);
 
@@ -35,8 +35,8 @@ beforeEach(function () {
         ->create(['quantity' => 50]);
 });
 
-it('creates a sale successfully', function () {
-    Event::fake();
+it('dispatches job to process sale asynchronously', function () {
+    Queue::fake();
 
     $response = $this->postJson('/api/sales', [
         'company_id' => $this->company->id,
@@ -50,22 +50,32 @@ it('creates a sale successfully', function () {
     $response->assertAccepted()
         ->assertJsonStructure([
             'message',
-            'data' => [
-                'id',
-                'sale_number',
-                'total_amount',
-                'total_cost',
-                'total_profit',
-                'status',
-                'sale_date',
-                'notes',
-                'items',
-            ],
+            'tracking_id',
         ]);
 
+    // Verify the job was dispatched
+    Queue::assertPushed(ProcessSaleJob::class);
+
+    // Sale should NOT exist yet since it's processed asynchronously
+    expect(Sale::query()->count())->toBe(0);
+});
+
+it('processes sale and inventory updates when job runs', function () {
+    $response = $this->postJson('/api/sales', [
+        'company_id' => $this->company->id,
+        'items' => [
+            ['product_id' => $this->product1->id, 'quantity' => 2],
+            ['product_id' => $this->product2->id, 'quantity' => 1],
+        ],
+        'notes' => 'Test sale',
+    ]);
+
+    $response->assertAccepted();
+
+    // Sale is created and completed after job runs
     $this->assertDatabaseHas('sales', [
         'company_id' => $this->company->id,
-        'status' => 'pending',
+        'status' => 'completed',
     ]);
 
     $this->assertDatabaseHas('sale_items', [
@@ -73,7 +83,9 @@ it('creates a sale successfully', function () {
         'quantity' => 2,
     ]);
 
-    Event::assertDispatched(SaleCompleted::class);
+    // Verify inventory was updated
+    $sale = Sale::query()->latest()->first();
+    expect($sale->inventoryEntries()->count())->toBe(2);
 });
 
 it('validates required fields when creating sale', function () {
@@ -157,7 +169,7 @@ it('returns 404 when sale not found', function () {
     $response->assertNotFound();
 });
 
-it('calculates totals correctly when creating sale', function () {
+it('calculates totals correctly when job processes sale', function () {
     $response = $this->postJson('/api/sales', [
         'company_id' => $this->company->id,
         'items' => [
@@ -168,6 +180,7 @@ it('calculates totals correctly when creating sale', function () {
 
     $response->assertAccepted();
 
+    // After job runs, sale should be created with correct totals
     $sale = Sale::query()->latest()->first();
 
     expect($sale->total_amount)->toBe(600.00)

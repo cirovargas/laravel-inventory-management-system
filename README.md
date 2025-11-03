@@ -19,9 +19,9 @@ A production-ready REST API built with Laravel 12 for managing inventory and sal
 
 - **Multi-tenancy Support**: Company-based data isolation
 - **Inventory Management**: Track product stock with entry/exit movements
-- **Sales Processing**: Create sales with automatic inventory updates
+- **Fully Async Sales Processing**: Sales creation and inventory updates processed asynchronously via queued jobs
 - **Sales Reports**: Generate detailed sales reports with metrics
-- **Event-Driven Architecture**: Async processing using queues
+- **Job-Based Architecture**: Async processing using Laravel queues for improved scalability
 - **Caching Layer**: Redis-based caching for improved performance
 - **Scheduled Tasks**: Automated stale inventory detection
 - **Comprehensive Testing**: Unit and integration tests with Pest
@@ -204,19 +204,12 @@ Content-Type: application/json
 **Response:** `202 Accepted`
 ```json
 {
-  "message": "Sale created successfully and is being processed",
-  "data": {
-    "id": 1,
-    "sale_number": "SALE-20250101-00001",
-    "total_amount": 600.00,
-    "total_cost": 400.00,
-    "total_profit": 200.00,
-    "status": "pending",
-    "sale_date": "2025-01-01T10:00:00Z",
-    "items": [...]
-  }
+  "message": "Sale is being processed",
+  "tracking_id": "9d8e7f6a-5b4c-3d2e-1f0a-9b8c7d6e5f4a"
 }
 ```
+
+**Note:** The sale is processed asynchronously. Use the `tracking_id` to track the sale status or query the sale by ID once processing is complete.
 
 #### Get Sale by ID
 ```http
@@ -300,9 +293,11 @@ docker-compose -f env/docker-compose.yml exec php vendor/bin/pint
 - Redis-based caching for production
 
 ### 4. Async Processing
-- Sales inventory updates processed via queues
-- Event-driven architecture for decoupling
-- Job retry mechanism (3 attempts)
+- **Fully asynchronous sale creation**: Sales are created and processed entirely via queued jobs
+- **ProcessSaleJob**: Handles both sale creation and inventory updates in a single transaction
+- **Immediate response**: API returns 202 Accepted with a tracking ID without waiting for sale creation
+- **Job retry mechanism**: 3 attempts with 120-second timeout per attempt
+- **Comprehensive error handling**: Failed jobs are logged with tracking ID for debugging
 
 ## Scheduled Tasks
 
