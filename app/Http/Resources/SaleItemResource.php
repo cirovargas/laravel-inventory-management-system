@@ -19,11 +19,11 @@ final class SaleItemResource extends JsonResource
                 'name' => $this->product->name,
             ],
             'quantity' => $this->quantity,
-            'unit_price' => number_format((float) $this->unit_price, 2, '.', ''),
-            'unit_cost' => number_format((float) $this->unit_cost, 2, '.', ''),
-            'subtotal' => number_format((float) $this->subtotal, 2, '.', ''),
-            'cost_total' => number_format((float) $this->cost_total, 2, '.', ''),
-            'profit' => number_format((float) $this->profit, 2, '.', ''),
+            'unit_price' => (float) $this->unit_price,
+            'unit_cost' => (float) $this->unit_cost,
+            'subtotal' => (float) $this->subtotal,
+            'cost_total' => (float) $this->cost_total,
+            'profit' => (float) $this->profit,
         ];
     }
 }

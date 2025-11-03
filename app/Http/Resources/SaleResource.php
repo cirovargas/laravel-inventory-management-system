@@ -14,9 +14,9 @@ final class SaleResource extends JsonResource
         return [
             'id' => $this->id,
             'sale_number' => $this->sale_number,
-            'total_amount' => number_format((float) $this->total_amount, 2, '.', ''),
-            'total_cost' => number_format((float) $this->total_cost, 2, '.', ''),
-            'total_profit' => number_format((float) $this->total_profit, 2, '.', ''),
+            'total_amount' => (float) $this->total_amount,
+            'total_cost' => (float) $this->total_cost,
+            'total_profit' => (float) $this->total_profit,
             'status' => $this->status,
             'sale_date' => $this->sale_date->toIso8601String(),
             'completed_at' => $this->completed_at?->toIso8601String(),

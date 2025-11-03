@@ -20,7 +20,7 @@ final class InventoryEntryResource extends JsonResource
             ],
             'type' => $this->type,
             'quantity' => $this->quantity,
-            'unit_cost' => number_format((float) $this->unit_cost, 2, '.', ''),
+            'unit_cost' => (float) $this->unit_cost,
             'notes' => $this->notes,
             'entry_date' => $this->entry_date->toIso8601String(),
             'created_at' => $this->created_at->toIso8601String(),

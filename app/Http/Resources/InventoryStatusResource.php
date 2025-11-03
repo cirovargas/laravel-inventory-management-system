@@ -16,10 +16,10 @@ final class InventoryStatusResource extends JsonResource
             'sku' => $this->resource['sku'],
             'name' => $this->resource['name'],
             'current_stock' => $this->resource['current_stock'],
-            'cost_price' => number_format((float) $this->resource['cost_price'], 2, '.', ''),
-            'sale_price' => number_format((float) $this->resource['sale_price'], 2, '.', ''),
-            'total_value' => number_format((float) $this->resource['total_value'], 2, '.', ''),
-            'projected_profit' => number_format((float) $this->resource['projected_profit'], 2, '.', ''),
+            'cost_price' => (float) $this->resource['cost_price'],
+            'sale_price' => (float) $this->resource['sale_price'],
+            'total_value' => $this->resource['total_value'],
+            'projected_profit' => $this->resource['projected_profit'],
         ];
     }
 }

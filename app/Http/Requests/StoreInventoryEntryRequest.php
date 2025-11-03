@@ -16,6 +16,7 @@ final class StoreInventoryEntryRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'company_id' => ['required', 'integer', 'exists:companies,id'],
             'product_id' => ['required', 'integer', 'exists:products,id'],
             'quantity' => ['required', 'integer', 'min:1'],
             'unit_cost' => ['required', 'numeric', 'min:0'],
