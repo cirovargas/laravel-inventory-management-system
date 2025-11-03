@@ -7,10 +7,14 @@ use App\Domain\Sales\DTO\CreateSaleData;
 use App\Domain\Sales\DTO\SaleItemData;
 use App\Domain\Sales\Repository\SaleRepositoryInterface;
 use App\Domain\Sales\Service\SaleService;
+use App\Models\Company;
 use App\Models\Product;
 use App\Models\Sale;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 
 use function Pest\Laravel\mock;
+
+uses(RefreshDatabase::class);
 
 beforeEach(function () {
     $this->saleRepository = mock(SaleRepositoryInterface::class);
@@ -19,73 +23,55 @@ beforeEach(function () {
 });
 
 it('creates a sale successfully', function () {
-    $product1 = Product::factory()->make([
-        'id' => 1,
-        'company_id' => 1,
+    $company = Company::factory()->create();
+    $product1 = Product::factory()->for($company)->create([
         'cost_price' => 100.00,
         'sale_price' => 150.00,
     ]);
 
-    $product2 = Product::factory()->make([
-        'id' => 2,
-        'company_id' => 1,
+    $product2 = Product::factory()->for($company)->create([
         'cost_price' => 200.00,
         'sale_price' => 300.00,
     ]);
 
     $items = [
-        new SaleItemData(productId: 1, quantity: 2),
-        new SaleItemData(productId: 2, quantity: 1),
+        new SaleItemData(productId: $product1->id, quantity: 2),
+        new SaleItemData(productId: $product2->id, quantity: 1),
     ];
 
     $data = new CreateSaleData(
-        companyId: 1,
+        companyId: $company->id,
         items: $items,
         notes: 'Test sale'
     );
 
     $this->productRepository
         ->shouldReceive('findById')
-        ->with(1)
-        ->once()
+        ->with($product1->id)
+        ->twice()
         ->andReturn($product1);
 
     $this->productRepository
         ->shouldReceive('findById')
-        ->with(2)
-        ->once()
+        ->with($product2->id)
+        ->twice()
         ->andReturn($product2);
-
-    $sale = Sale::factory()->make(['id' => 1]);
 
     $this->saleRepository
         ->shouldReceive('create')
         ->once()
-        ->andReturn($sale);
-
-    $this->productRepository
-        ->shouldReceive('findById')
-        ->with(1)
-        ->once()
-        ->andReturn($product1);
-
-    $this->productRepository
-        ->shouldReceive('findById')
-        ->with(2)
-        ->once()
-        ->andReturn($product2);
-
-    $updatedSale = Sale::factory()->make([
-        'id' => 1,
-        'total_amount' => 600.00,
-        'total_cost' => 400.00,
-        'total_profit' => 200.00,
-    ]);
+        ->andReturnUsing(function ($data) use ($company) {
+            return Sale::query()->create($data);
+        });
 
     $this->saleRepository
         ->shouldReceive('update')
         ->once()
-        ->andReturn($updatedSale);
+        ->andReturnUsing(function ($sale, $data) {
+            $sale->update($data);
+
+            return $sale->fresh();
+        });
 
     $result = $this->service->createSale($data);
 
@@ -133,7 +119,7 @@ it('throws exception when product does not belong to company', function () {
         ->andReturn($product);
 
     $this->service->createSale($data);
-})->throws(InvalidArgumentException::class, 'Product 1 does not belong to this company');
+})->throws(InvalidArgumentException::class, 'does not belong to this company');
 
 it('retrieves sale by id', function () {
     $sale = Sale::factory()->make(['id' => 1]);

@@ -183,7 +183,7 @@ it('calculates totals correctly when job processes sale', function () {
     // After job runs, sale should be created with correct totals
     $sale = Sale::query()->latest()->first();
 
-    expect($sale->total_amount)->toBe(600.00)
-        ->and($sale->total_cost)->toBe(400.00)
-        ->and($sale->total_profit)->toBe(200.00);
+    expect((float) $sale->total_amount)->toBe(600.00)
+        ->and((float) $sale->total_cost)->toBe(400.00)
+        ->and((float) $sale->total_profit)->toBe(200.00);
 });

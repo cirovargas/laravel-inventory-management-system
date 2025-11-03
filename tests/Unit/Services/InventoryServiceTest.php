@@ -41,12 +41,7 @@ it('registers an inventory entry successfully', function () {
         ->once()
         ->andReturn($product);
 
-    $entry = InventoryEntry::factory()->make([
-        'company_id' => 1,
-        'product_id' => 1,
-        'quantity' => 50,
-        'unit_cost' => 100.00,
-    ]);
+    $entry = InventoryEntry::factory()->make(['id' => 1]);
 
     $this->inventoryRepository
         ->shouldReceive('createEntry')
@@ -132,10 +127,7 @@ it('creates inventory exit successfully', function () {
         ->once()
         ->andReturn(true);
 
-    $entry = InventoryEntry::factory()->make([
-        'type' => 'exit',
-        'quantity' => 10,
-    ]);
+    $entry = InventoryEntry::factory()->make(['id' => 1]);
 
     $this->inventoryRepository
         ->shouldReceive('createEntry')

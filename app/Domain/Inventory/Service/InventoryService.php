@@ -88,7 +88,7 @@ final class InventoryService
                 'product_id' => $productId,
                 'type' => InventoryType::EXIT,
                 'quantity' => $quantity,
-                'unit_cost' => $product->cost_price,
+                'unit_cost' => $product->sale_price,
                 'sale_id' => $saleId,
                 'entry_date' => now(),
             ]);

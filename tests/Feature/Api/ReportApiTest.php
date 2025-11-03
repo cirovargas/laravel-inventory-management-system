@@ -69,7 +69,7 @@ it('retrieves sales report successfully', function () {
             'pagination' => [
                 'cursor',
                 'next_cursor',
-                'previous cursor',
+                'previous_cursor',
                 'per_page',
             ],
         ]);
@@ -115,7 +115,7 @@ it('filters sales by SKU correctly', function () {
 
     SaleItem::factory()->forSale($sale)->forProduct($anotherProduct)->create();
 
-    $response = $this->getJson('/api/reports/sales?start_date='.now()->subDays(10)->format('Y-m-d').'&end_date='.now()->format('Y-m-d').'&sku='.$this->product->sku).'&company_id='.$this->company->id;
+    $response = $this->getJson('/api/reports/sales?start_date='.now()->subDays(10)->format('Y-m-d').'&end_date='.now()->format('Y-m-d').'&sku='.$this->product->sku.'&company_id='.$this->company->id);
 
     $response->assertSuccessful();
 
@@ -132,19 +132,18 @@ it('calculates metrics correctly', function () {
     $metrics = $response->json('metrics');
 
     expect($metrics['total_sales'])->toBe(2)
-        ->and($metrics['total_amount'])->toBe('750.00')
-        ->and($metrics['total_profit'])->toBe('250.00')
+        ->and((float) $metrics['total_amount'])->toBe(750.00)
+        ->and((float) $metrics['total_profit'])->toBe(250.00)
         ->and($metrics['total_quantity'])->toBe(5);
 });
 
 it('paginates results correctly', function () {
-    $response = $this->getJson('/api/reports/sales?start_date='.now()->subDays(10)->format('Y-m-d').'&end_date='.now()->format('Y-m-d').'&per_page=1');
+    $response = $this->getJson('/api/reports/sales?start_date='.now()->subDays(10)->format('Y-m-d').'&end_date='.now()->format('Y-m-d').'&per_page=1&company_id='.$this->company->id);
 
     $response->assertSuccessful();
 
     $pagination = $response->json('pagination');
 
-    expect($pagination['per_page'])->toBe(1)
-        ->and($pagination['total'])->toBe(2)
-        ->and($pagination['last_page'])->toBe(2);
+    // Cursor pagination doesn't have total or last_page
+    expect($pagination['per_page'])->toBe(1);
 });

@@ -6,9 +6,9 @@ namespace App\Http\Controllers\Api;
 
 use App\Domain\Sales\Service\SaleService;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\SalesReportRequest;
 use App\Http\Resources\SaleResource;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 
 final class ReportController extends Controller
 {
@@ -16,7 +16,7 @@ final class ReportController extends Controller
         private readonly SaleService $saleService,
     ) {}
 
-    public function sales(Request $request): JsonResponse
+    public function sales(SalesReportRequest $request): JsonResponse
     {
         $companyId = $request->integer('company_id');
         $startDate = $request->string('start_date')->toString();

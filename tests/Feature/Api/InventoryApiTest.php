@@ -117,7 +117,7 @@ it('validates unit cost is non-negative when creating inventory entry', function
 
 it('invalidates cache after creating inventory entry', function () {
     Cache::shouldReceive('forget')
-        ->with('inventory_status_1')
+        ->with("inventory_status_{$this->company->id}")
         ->once();
 
     $this->postJson('/api/inventory', [

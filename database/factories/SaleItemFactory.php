@@ -44,6 +44,8 @@ final class SaleItemFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'sale_id' => $sale->id,
+            'company_id' => $sale->company_id,
+            'sale_date' => $sale->sale_date,
         ]);
     }
 
