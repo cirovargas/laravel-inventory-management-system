@@ -6,7 +6,8 @@ A production-ready REST API built with Laravel 12 for managing inventory and sal
 
 - [Features](#features)
 - [Technology Stack](#technology-stack)
-- [Architecture](#architecture)
+- [Architecture Overview](#architecture-overview)
+- [Documentation](#documentation)
 - [Installation](#installation)
 - [Database Setup](#database-setup)
 - [API Documentation](#api-documentation)
@@ -29,16 +30,35 @@ A production-ready REST API built with Laravel 12 for managing inventory and sal
 ## Technology Stack
 
 - **Framework**: Laravel 12.x
-- **PHP**: 8.4
-- **Database**: PostgreSQL 17.0
+- **PHP**: 8.4.14
+- **Database**: PostgreSQL 18.0 with Citus (distributed database for horizontal scaling)
 - **Cache**: Redis
-- **Queue**: Database driver (configurable to Redis/SQS)
-- **Testing**: Pest 4.x
+- **Server**: Laravel Octane with Swoole (4 workers, 6 task workers)
+- **Queue**: Database driver with Supervisor (2 workers, configurable to Redis/SQS)
+- **Testing**: Pest 4.x + PHPUnit 12
+- **Authentication**: Laravel Sanctum 4
 - **Code Quality**: Laravel Pint
 
-## Architecture
+### Why These Technologies?
 
-This application follows **Clean Architecture** principles with **CQRS pattern** and **Event-Driven Design**.
+- **PostgreSQL + Citus**: Enables horizontal scaling via company-based sharding, perfect for multi-tenant architecture
+- **Laravel Octane**: High-performance application server that keeps the app in memory between requests
+- **Redis**: Fast caching and queue backend for improved performance
+- **Pest**: Modern, elegant testing framework with browser testing support
+
+📖 **[Complete Technology Stack Documentation](docs/technology-stack.md)**
+
+## Architecture Overview
+
+This application implements a **Domain-Driven Design (DDD)** architecture with **CQRS-inspired patterns** and **Event-Driven** components.
+
+### Key Architectural Principles
+
+1. **Separation of Concerns**: Clear boundaries between Domain, Application, and Infrastructure layers
+2. **Repository Pattern**: Abstraction of data access logic
+3. **Service Layer**: Encapsulation of business logic
+4. **Event-Driven**: Asynchronous processing via events and queued jobs
+5. **DTO Pattern**: Immutable data transfer objects for type safety
 
 ### Directory Structure
 
@@ -73,6 +93,50 @@ app/
 2. **Service Layer**: Encapsulates business logic
 3. **DTO Pattern**: Immutable data transfer objects
 4. **Event-Driven**: Domain events trigger async operations
+5. **Dependency Injection**: Constructor injection throughout
+6. **Factory Pattern**: Test data generation
+
+📖 **[Complete Application Architecture Documentation](docs/application-architecture.md)**
+
+## Documentation
+
+Comprehensive documentation is available in the `/docs` folder:
+
+### Core Documentation
+
+- **[Database Design](docs/database-design.md)**: Complete database schema, relationships, indexes, constraints, and ER diagrams
+- **[Application Architecture](docs/application-architecture.md)**: Architectural patterns, design decisions, and data flow
+- **[Technology Stack](docs/technology-stack.md)**: Detailed technology choices and justifications
+
+### Database Documentation
+
+The database design documentation includes:
+- **Database Selection**: Why PostgreSQL + Citus was chosen
+- **Table Structure**: All tables with column definitions and purposes
+- **Relationships**: Entity relationships with cardinality
+- **Indexes**: Performance optimization strategy
+- **Constraints**: Business rules enforced at database level
+- **ER Diagram**: Visual representation of the database schema
+
+### Quick Reference: Database Schema
+
+```
+companies (1) ──< (N) products
+companies (1) ──< (N) sales
+companies (1) ──< (N) inventory_entries
+products (1) ──< (N) inventory_entries
+products (1) ──< (N) sale_items
+sales (1) ──< (N) sale_items
+sales (1) ──< (N) inventory_entries
+```
+
+**Key Features**:
+- Company-based sharding for horizontal scalability
+- Monthly partitioning for sales and sale_items tables
+- Composite primary keys for efficient sharding
+- Partial indexes for soft-delete patterns
+
+📊 **[View Complete ER Diagram](docs/database-design.md#entity-relationship-diagram)**
 
 ## Installation
 

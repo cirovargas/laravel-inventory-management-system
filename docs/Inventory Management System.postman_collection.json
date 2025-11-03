@@ -1,0 +1,184 @@
+{
+	"info": {
+		"_postman_id": "8d222eaa-25c3-405b-bfa2-df9c70504dd2",
+		"name": "Inventory Management System",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "9974480"
+	},
+	"item": [
+		{
+			"name": "Inventory",
+			"item": [
+				{
+					"name": "Get Inventory Status",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/api/inventory?company_id=1",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"inventory"
+							],
+							"query": [
+								{
+									"key": "company_id",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Inventory Entry",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"product_id\": 1,\n  \"quantity\": 100,\n  \"company_id\": 1,\n  \"unit_cost\": 50.00,\n  \"notes\": \"Initial stock\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/inventory",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"inventory"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Sales",
+			"item": [
+				{
+					"name": "Report",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/api/reports/sales?start_date=2025-10-01&end_date=2025-12-31&per_page=15&company_id=1",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"reports",
+								"sales"
+							],
+							"query": [
+								{
+									"key": "start_date",
+									"value": "2025-10-01"
+								},
+								{
+									"key": "end_date",
+									"value": "2025-12-31"
+								},
+								{
+									"key": "sku",
+									"value": "SKU-5387-kect",
+									"disabled": true
+								},
+								{
+									"key": "per_page",
+									"value": "15"
+								},
+								{
+									"key": "company_id",
+									"value": "1"
+								},
+								{
+									"key": "cursor",
+									"value": "eyJzYWxlX2RhdGUiOiIyMDI0LTEyLTMwIDA1OjQxOjE3IiwiX3BvaW50c1RvTmV4dEl0ZW1zIjp0cnVlfQ",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Sale",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"company_id\": 1,\n  \"items\": [\n    {\n      \"product_id\": 1,\n      \"quantity\": 2\n    },\n    {\n      \"product_id\": 2,\n      \"quantity\": 1\n    }\n  ],\n  \"notes\": \"Customer order #123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/sales",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"sales"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Sale by ID",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"company_id\": 1,\n  \"items\": [\n    {\n      \"product_id\": 1,\n      \"quantity\": 2\n    },\n    {\n      \"product_id\": 2,\n      \"quantity\": 1\n    }\n  ],\n  \"notes\": \"Customer order #123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/sales/:id",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"sales",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "baseURL",
+			"value": "",
+			"type": "default"
+		}
+	]
+}
