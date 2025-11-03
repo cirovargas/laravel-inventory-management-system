@@ -7,9 +7,14 @@ services:
       - "3000:3000"
     links:
       - postgres:postgres
-#    volumes:
-#      - ../:/app
-#      - ./php/php.ini:/usr/local/etc/php/php.ini
+    deploy:
+      resources:
+        limits:
+          cpus: 2
+          memory: 2048M
+        reservations:
+          cpus: 1
+          memory: 1024M
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000/up"]
@@ -21,6 +26,14 @@ services:
 
   postgres:
     image: 'citusdata/citus:13-alpine'
+    deploy:
+      resources:
+        limits:
+          cpus: 2
+          memory: 2048M
+        reservations:
+          cpus: 1
+          memory: 1024M
     expose:
       - '5432'
     ports:
