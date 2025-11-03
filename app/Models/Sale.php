@@ -56,4 +56,3 @@ final class Sale extends Model
         return $this->hasMany(InventoryEntry::class);
     }
 }
-

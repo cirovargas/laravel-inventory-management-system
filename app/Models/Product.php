@@ -59,4 +59,3 @@ final class Product extends Model
             ->value('stock') ?? 0;
     }
 }
-

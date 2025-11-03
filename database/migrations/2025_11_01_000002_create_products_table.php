@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
@@ -33,6 +33,7 @@ return new class extends Migration
             $table->index('created_at');
         });
 
+        DB::statement('CREATE UNIQUE INDEX idx_products_company_sku_active ON products (company_id, sku) WHERE deleted_at IS NULL');
         DB::statement('alter table "products" add constraint "products_cost_price_check" check (cost_price >= 0)');
         DB::statement('alter table "products" add constraint "products_sale_price_check" check (sale_price >= 0)');
     }
@@ -45,4 +46,3 @@ return new class extends Migration
         Schema::dropIfExists('products');
     }
 };
-

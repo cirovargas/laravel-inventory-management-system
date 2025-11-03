@@ -15,4 +15,3 @@ final class UpdateInventoryAfterSale implements ShouldQueue
         UpdateInventoryJob::dispatch($event->sale);
     }
 }
-

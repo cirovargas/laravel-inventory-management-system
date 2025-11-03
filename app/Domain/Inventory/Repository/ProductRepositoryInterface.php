@@ -23,4 +23,3 @@ interface ProductRepositoryInterface
 
     public function delete(Product $product): bool;
 }
-

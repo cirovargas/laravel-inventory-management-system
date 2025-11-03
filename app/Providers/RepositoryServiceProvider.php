@@ -7,9 +7,9 @@ namespace App\Providers;
 use App\Domain\Inventory\Repository\InventoryRepositoryInterface;
 use App\Domain\Inventory\Repository\ProductRepositoryInterface;
 use App\Domain\Sales\Repository\SaleRepositoryInterface;
-use App\Infrastructure\Repositories\InventoryRepository;
-use App\Infrastructure\Repositories\ProductRepository;
-use App\Infrastructure\Repositories\SaleRepository;
+use App\Repository\InventoryRepository;
+use App\Repository\ProductRepository;
+use App\Repository\SaleRepository;
 use Illuminate\Support\ServiceProvider;
 
 final class RepositoryServiceProvider extends ServiceProvider
@@ -21,4 +21,3 @@ final class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(SaleRepositoryInterface::class, SaleRepository::class);
     }
 }
-

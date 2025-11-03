@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Infrastructure\Repositories;
+namespace App\Repository;
 
 use App\Domain\Inventory\Repository\ProductRepositoryInterface;
 use App\Models\Product;
@@ -57,4 +57,3 @@ final class ProductRepository implements ProductRepositoryInterface
         return $product->delete();
     }
 }
-

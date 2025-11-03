@@ -6,7 +6,6 @@ namespace App\Domain\Sales\Repository;
 
 use App\Models\Sale;
 use Illuminate\Contracts\Pagination\CursorPaginator;
-use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 
 interface SaleRepositoryInterface
@@ -38,4 +37,3 @@ interface SaleRepositoryInterface
         ?string $sku = null
     ): array;
 }
-

@@ -148,4 +148,3 @@ it('paginates results correctly', function () {
         ->and($pagination['total'])->toBe(2)
         ->and($pagination['last_page'])->toBe(2);
 });
-

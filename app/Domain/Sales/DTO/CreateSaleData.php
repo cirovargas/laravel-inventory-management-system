@@ -13,8 +13,7 @@ final readonly class CreateSaleData
         public int $companyId,
         public array $items,
         public ?string $notes = null,
-    ) {
-    }
+    ) {}
 
     public static function fromArray(int $companyId, array $data): self
     {
@@ -30,4 +29,3 @@ final readonly class CreateSaleData
         );
     }
 }
-

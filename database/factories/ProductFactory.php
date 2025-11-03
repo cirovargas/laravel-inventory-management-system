@@ -45,4 +45,3 @@ final class ProductFactory extends Factory
         ]);
     }
 }
-

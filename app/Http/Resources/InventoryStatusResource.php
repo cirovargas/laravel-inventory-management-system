@@ -23,4 +23,3 @@ final class InventoryStatusResource extends JsonResource
         ];
     }
 }
-

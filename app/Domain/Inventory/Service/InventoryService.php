@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Inventory\Service;
 
 use App\Domain\Inventory\DTO\InventoryEntryData;
+use App\Domain\Inventory\Enum\InventoryType;
 use App\Domain\Inventory\Repository\InventoryRepositoryInterface;
 use App\Domain\Inventory\Repository\ProductRepositoryInterface;
 use App\Models\InventoryEntry;
@@ -17,8 +18,7 @@ final class InventoryService
     public function __construct(
         private readonly InventoryRepositoryInterface $inventoryRepository,
         private readonly ProductRepositoryInterface $productRepository,
-    ) {
-    }
+    ) {}
 
     public function registerEntry(InventoryEntryData $data): InventoryEntry
     {
@@ -86,7 +86,7 @@ final class InventoryService
             $entry = $this->inventoryRepository->createEntry([
                 'company_id' => $companyId,
                 'product_id' => $productId,
-                'type' => 'exit',
+                'type' => InventoryType::EXIT,
                 'quantity' => $quantity,
                 'unit_cost' => $product->cost_price,
                 'sale_id' => $saleId,
@@ -100,4 +100,3 @@ final class InventoryService
         });
     }
 }
-

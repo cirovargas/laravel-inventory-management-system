@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Domain\Inventory\Repository;
 
 use App\Models\InventoryEntry;
-use App\Models\Product;
 use Illuminate\Database\Eloquent\Collection;
 
 interface InventoryRepositoryInterface
@@ -24,4 +23,3 @@ interface InventoryRepositoryInterface
 
     public function hasAvailableStock(int $productId, int $quantity): bool;
 }
-

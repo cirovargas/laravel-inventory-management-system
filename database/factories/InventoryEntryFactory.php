@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Database\Factories;
 
-use App\Models\Company;
 use App\Models\InventoryEntry;
 use App\Models\Product;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -56,4 +55,3 @@ final class InventoryEntryFactory extends Factory
         ]);
     }
 }
-

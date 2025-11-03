@@ -6,12 +6,11 @@ namespace App\Domain\Sales\Service;
 
 use App\Domain\Inventory\Repository\ProductRepositoryInterface;
 use App\Domain\Sales\DTO\CreateSaleData;
+use App\Domain\Sales\Enum\SaleStatus;
 use App\Domain\Sales\Repository\SaleRepositoryInterface;
-use App\Events\SaleCompleted;
 use App\Models\Sale;
 use App\Models\SaleItem;
 use Illuminate\Contracts\Pagination\CursorPaginator;
-use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 
 final class SaleService
@@ -19,13 +18,11 @@ final class SaleService
     public function __construct(
         private readonly SaleRepositoryInterface $saleRepository,
         private readonly ProductRepositoryInterface $productRepository,
-    ) {
-    }
+    ) {}
 
     public function createSale(CreateSaleData $data): Sale
     {
         return DB::transaction(function () use ($data) {
-            // Validate all products exist and belong to the company
             foreach ($data->items as $item) {
                 $product = $this->productRepository->findById($item->productId);
 
@@ -45,12 +42,11 @@ final class SaleService
                 'total_amount' => 0,
                 'total_cost' => 0,
                 'total_profit' => 0,
-                'status' => 'pending',
+                'status' => SaleStatus::PENDING,
                 'sale_date' => now(),
                 'notes' => $data->notes,
             ]);
 
-            // Create sale items and calculate totals
             $totalAmount = 0;
             $totalCost = 0;
 
@@ -76,7 +72,6 @@ final class SaleService
                 $totalCost += $costTotal;
             }
 
-            // Update sale totals
             $sale = $this->saleRepository->update($sale, [
                 'total_amount' => $totalAmount,
                 'total_cost' => $totalCost,
@@ -116,4 +111,3 @@ final class SaleService
         return 'SALE-'.now()->format('Ymd').'-'.str_pad((string) random_int(1, 99999), 5, '0', STR_PAD_LEFT);
     }
 }
-

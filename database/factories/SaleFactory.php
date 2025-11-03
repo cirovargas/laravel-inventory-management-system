@@ -65,4 +65,3 @@ final class SaleFactory extends Factory
         ]);
     }
 }
-

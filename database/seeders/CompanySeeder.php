@@ -13,9 +13,8 @@ final class CompanySeeder extends Seeder
     {
         $this->command->info('Seeding companies...');
 
-        Company::factory()->count(3)->create();
+        Company::factory()->count(2)->create();
 
         $this->command->info('Companies seeded successfully!');
     }
 }
-

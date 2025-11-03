@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
@@ -24,6 +24,7 @@ return new class extends Migration
             $table->text('notes')->nullable();
             $table->bigInteger('sale_id')->nullable();
             $table->timestamp('entry_date')->useCurrent();
+            $table->timestamp('sale_date')->nullable();
             $table->timestamps();
             $table->primary(['company_id', 'id']);
 
@@ -37,7 +38,7 @@ return new class extends Migration
         });
 
         DB::statement('alter table "inventory_entries" add constraint "inventory_entries_product_id_foreign" foreign key ("company_id", "product_id") references "products" ("company_id", "id")');
-        DB::statement('alter table "inventory_entries" add constraint "inventory_entries_sale_id_foreign" foreign key ("company_id", "sale_id") references "sales" ("company_id", "id")');
+        DB::statement('alter table "inventory_entries" add constraint "inventory_entries_sale_id_foreign" foreign key ("company_id", "sale_id","sale_date") references "sales" ("company_id", "id","sale_date")');
         DB::statement('alter table "inventory_entries" add constraint "inventory_entries_quantity_check" check (quantity != 0)');
     }
 
@@ -49,4 +50,3 @@ return new class extends Migration
         Schema::dropIfExists('inventory_entries');
     }
 };
-

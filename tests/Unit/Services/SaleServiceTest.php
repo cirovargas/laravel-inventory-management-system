@@ -160,4 +160,3 @@ it('returns null when sale not found', function () {
 
     expect($result)->toBeNull();
 });
-

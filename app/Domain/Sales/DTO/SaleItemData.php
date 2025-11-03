@@ -9,8 +9,7 @@ final readonly class SaleItemData
     public function __construct(
         public int $productId,
         public int $quantity,
-    ) {
-    }
+    ) {}
 
     public static function fromArray(array $data): self
     {
@@ -20,4 +19,3 @@ final readonly class SaleItemData
         );
     }
 }
-

@@ -11,9 +11,9 @@ use Illuminate\Support\Facades\DB;
 
 final class SalesSeeder extends Seeder
 {
-    private const TOTAL_SALES = 100000;
+    private const TOTAL_SALES = 1_000_000;
 
-    private const BATCH_SIZE = 1000;
+    private const BATCH_SIZE = 1_000;
 
     public function run(): void
     {
@@ -53,7 +53,6 @@ final class SalesSeeder extends Seeder
             $saleIdCounter++;
             $saleDate = now()->subDays(rand(0, 365));
 
-            // Create sale record
             $sale = [
                 'id' => $saleIdCounter,
                 'company_id' => $company->id,
@@ -70,7 +69,6 @@ final class SalesSeeder extends Seeder
                 'deleted_at' => null,
             ];
 
-            // Create 2-5 sale items per sale
             $numItems = rand(2, 5);
             $totalAmount = 0;
             $totalCost = 0;
@@ -90,6 +88,7 @@ final class SalesSeeder extends Seeder
                     'product_id' => $product['id'],
                     'quantity' => $quantity,
                     'unit_price' => $unitPrice,
+                    'sale_date' => $saleDate,
                     'unit_cost' => $unitCost,
                     'subtotal' => $subtotal,
                     'cost_total' => $costTotal,
@@ -108,7 +107,6 @@ final class SalesSeeder extends Seeder
 
             $salesBatch[] = $sale;
 
-            // Insert in batches
             if (count($salesBatch) >= self::BATCH_SIZE) {
                 DB::table('sales')->insert($salesBatch);
                 DB::table('sale_items')->insert($saleItemsBatch);
@@ -120,11 +118,9 @@ final class SalesSeeder extends Seeder
             $progressBar->advance();
         }
 
-        // Insert remaining records
         if (count($salesBatch) > 0) {
             DB::table('sales')->insert($salesBatch);
             DB::table('sale_items')->insert($saleItemsBatch);
         }
     }
 }
-

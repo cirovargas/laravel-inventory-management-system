@@ -122,4 +122,3 @@ it('invalidates cache after creating inventory entry', function () {
         'unit_cost' => 50.00,
     ]);
 });
-

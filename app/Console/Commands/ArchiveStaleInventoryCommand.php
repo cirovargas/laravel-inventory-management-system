@@ -32,6 +32,7 @@ final class ArchiveStaleInventoryCommand extends Command
 
                 foreach ($staleRecords as $product) {
                     $this->line("  - Product: {$product->sku} - {$product->name}");
+                    $product->update(['is_active' => false]);
                 }
 
                 $totalStaleRecords += $staleRecords->count();
@@ -47,4 +48,3 @@ final class ArchiveStaleInventoryCommand extends Command
         return self::SUCCESS;
     }
 }
-

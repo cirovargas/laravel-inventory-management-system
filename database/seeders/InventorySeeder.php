@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Database\Seeders;
 
 use App\Models\Company;
-use App\Models\InventoryEntry;
 use App\Models\Product;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
@@ -41,6 +40,7 @@ final class InventorySeeder extends Seeder
                         'unit_cost' => $product->cost_price,
                         'notes' => null,
                         'sale_id' => null,
+                        'sale_date' => null,
                         'entry_date' => now()->subDays(rand(1, 365)),
                         'created_at' => now(),
                         'updated_at' => now(),
@@ -61,4 +61,3 @@ final class InventorySeeder extends Seeder
         $this->command->info('Inventory entries seeded successfully!');
     }
 }
-

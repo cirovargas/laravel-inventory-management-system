@@ -171,4 +171,3 @@ it('throws exception when insufficient stock for exit', function () {
 
     $this->service->createInventoryExit(1, 1, 100);
 })->throws(RuntimeException::class, 'Insufficient stock available');
-

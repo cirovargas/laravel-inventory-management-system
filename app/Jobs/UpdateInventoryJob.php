@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Jobs;
 
 use App\Domain\Inventory\Service\InventoryService;
+use App\Domain\Sales\Enum\SaleStatus;
 use App\Models\Sale;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
@@ -21,29 +22,24 @@ final class UpdateInventoryJob implements ShouldQueue
 
     public function __construct(
         public readonly Sale $sale,
-    ) {
-    }
+    ) {}
 
     public function handle(InventoryService $inventoryService): void
     {
         try {
             DB::transaction(function () use ($inventoryService) {
-                // Update sale status to processing
-                $this->sale->update(['status' => 'processing']);
+                $this->sale->update(['status' => SaleStatus::PROCESSING]);
 
-                // Load sale items with products
                 $this->sale->load('items.product');
 
-                // Process each sale item
                 foreach ($this->sale->items as $item) {
-                    // Check stock availability
                     if (! $inventoryService->hasAvailableStock($item->product_id, $item->quantity)) {
                         throw new \RuntimeException(
-                            "Insufficient stock for product {$item->product->sku}. Required: {$item->quantity}, Available: ".$inventoryService->getCurrentStock($item->product_id)
+                            "Insufficient stock for product {$item->product->sku}. Required: {$item->quantity},
+                            Available: ".$inventoryService->getCurrentStock($item->product_id)
                         );
                     }
 
-                    // Create inventory exit entry
                     $inventoryService->createInventoryExit(
                         companyId: $this->sale->company_id,
                         productId: $item->product_id,
@@ -52,17 +48,15 @@ final class UpdateInventoryJob implements ShouldQueue
                     );
                 }
 
-                // Update sale status to completed
                 $this->sale->update([
-                    'status' => 'completed',
+                    'status' => SaleStatus::COMPLETED,
                     'completed_at' => now(),
                 ]);
 
                 Log::info("Sale {$this->sale->sale_number} completed successfully");
             });
         } catch (\Exception $e) {
-            // Update sale status to failed
-            $this->sale->update(['status' => 'failed']);
+            $this->sale->update(['status' => SaleStatus::FAILED]);
 
             Log::error("Failed to process sale {$this->sale->sale_number}: {$e->getMessage()}");
 
@@ -77,4 +71,3 @@ final class UpdateInventoryJob implements ShouldQueue
         $this->sale->update(['status' => 'failed']);
     }
 }
-

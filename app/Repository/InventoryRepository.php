@@ -2,13 +2,12 @@
 
 declare(strict_types=1);
 
-namespace App\Infrastructure\Repositories;
+namespace App\Repository;
 
 use App\Domain\Inventory\Repository\InventoryRepositoryInterface;
 use App\Models\InventoryEntry;
 use App\Models\Product;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Facades\DB;
 
 final class InventoryRepository implements InventoryRepositoryInterface
 {
@@ -104,4 +103,3 @@ final class InventoryRepository implements InventoryRepositoryInterface
         return $currentStock >= $quantity;
     }
 }
-

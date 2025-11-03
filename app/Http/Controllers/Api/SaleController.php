@@ -16,8 +16,7 @@ final class SaleController extends Controller
 {
     public function __construct(
         private readonly SaleService $saleService,
-    ) {
-    }
+    ) {}
 
     public function store(StoreSaleRequest $request): JsonResponse
     {
@@ -53,4 +52,3 @@ final class SaleController extends Controller
         ]);
     }
 }
-

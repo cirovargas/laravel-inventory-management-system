@@ -17,8 +17,7 @@ final class InventoryController extends Controller
 {
     public function __construct(
         private readonly InventoryService $inventoryService,
-    ) {
-    }
+    ) {}
 
     public function index(): AnonymousResourceCollection
     {
@@ -53,4 +52,3 @@ final class InventoryController extends Controller
         ], 201);
     }
 }
-

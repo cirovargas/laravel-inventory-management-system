@@ -27,4 +27,3 @@ final class SaleItemResource extends JsonResource
         ];
     }
 }
-

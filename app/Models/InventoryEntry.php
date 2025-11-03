@@ -49,4 +49,3 @@ final class InventoryEntry extends Model
         return $this->belongsTo(Sale::class);
     }
 }
-

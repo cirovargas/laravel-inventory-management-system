@@ -168,4 +168,3 @@ it('calculates totals correctly when creating sale', function () {
         ->and($sale->total_cost)->toBe(400.00)
         ->and($sale->total_profit)->toBe(200.00);
 });
-

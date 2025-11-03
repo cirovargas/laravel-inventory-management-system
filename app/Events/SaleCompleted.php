@@ -17,7 +17,5 @@ final class SaleCompleted
 
     public function __construct(
         public readonly Sale $sale,
-    ) {
-    }
+    ) {}
 }
-

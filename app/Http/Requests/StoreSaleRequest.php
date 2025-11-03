@@ -35,4 +35,3 @@ final class StoreSaleRequest extends FormRequest
         ];
     }
 }
-
