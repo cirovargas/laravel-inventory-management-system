@@ -25,10 +25,7 @@ final class SaleController extends Controller
 
         $data = CreateSaleData::fromArray($companyId, $request->validated());
 
-        // Generate a unique tracking ID for this sale
-        $trackingId = Str::uuid()->toString();
-
-        // Dispatch the job to process the sale asynchronously
+        $trackingId = Str::uuid7()->toString();
         ProcessSaleJob::dispatch($data, $trackingId);
 
         return response()->json([

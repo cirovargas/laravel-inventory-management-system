@@ -1,4 +1,4 @@
-FROM php:8.4-fpm-alpine
+FROM php:8.4-cli-alpine
 
 WORKDIR /app
 
@@ -18,25 +18,29 @@ RUN chmod +x /usr/local/bin/install-php-extensions  \
       intl \
       pdo_pgsql \
       pcntl \
+      swoole \
+      opcache \
       zip \
       pcov \
       xdebug \
       sockets \
       @composer \
-    && curl -sS https://get.symfony.com/cli/installer | bash \
-    && mv /root/.symfony5/bin/symfony /usr/local/bin/symfony \
-    && rm -rf /root/.symfony5 \
-    && chmod +x /usr/local/bin/symfony \
     && rm -rf /var/cache/apk/*
 
+
 ENV COMPOSER_ALLOW_SUPERUSER=1
-#
-#COPY . .
-#RUN  composer install && \
-#  composer dump-env prod && \
-#  php bin/console c:w && \
-#  mkdir var/storage && \
-#  chmod -R 777 var/*
-#
-#CMD php bin/console d:m:m --no-interaction && php-fpm -D && /usr/bin/supervisord -n -c /etc/supervisord.conf
-#CMD php-fpm -D && /usr/bin/supervisord -n -c /etc/supervisord.conf
+
+COPY ./env/php/php.ini /usr/local/etc/php/php.ini
+COPY . /app
+
+RUN composer install --no-scripts --no-progress --no-suggest --prefer-dist --optimize-autoloader && \
+    composer dump-autoload -o && \
+    composer clear-cache && \
+    php artisan optimize && \
+    php artisan config:cache && \
+    php artisan event:cache && \
+    php artisan route:cache
+#php artisan queue:work
+
+
+CMD [  "php", "-d", "variables_order=EGPCS", "artisan", "octane:start", "--server=swoole", "--host=0.0.0.0", "--port=3000", "--workers=4", "--task-workers=6"]

@@ -9,6 +9,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\SalesReportRequest;
 use App\Http\Resources\SaleResource;
 use Illuminate\Http\JsonResponse;
+use Laravel\Octane\Facades\Octane;
 
 final class ReportController extends Controller
 {
@@ -24,20 +25,21 @@ final class ReportController extends Controller
         $sku = $request->string('sku')->toString() ?: null;
         $perPage = $request->integer('per_page', 15);
 
-        $sales = $this->saleService->getSalesReport(
-            companyId: $companyId,
-            startDate: $startDate,
-            endDate: $endDate,
-            sku: $sku,
-            perPage: $perPage
-        );
-
-        $metrics = $this->saleService->getSalesMetrics(
-            companyId: $companyId,
-            startDate: $startDate,
-            endDate: $endDate,
-            sku: $sku
-        );
+        [$metrics, $sales] = Octane::concurrently([
+            fn () => $this->saleService->getSalesMetrics(
+                companyId: $companyId,
+                startDate: $startDate,
+                endDate: $endDate,
+                sku: $sku
+            ),
+            fn () => $this->saleService->getSalesReport(
+                companyId: $companyId,
+                startDate: $startDate,
+                endDate: $endDate,
+                sku: $sku,
+                perPage: $perPage
+            ),
+        ]);
 
         return response()->json([
             'data' => SaleResource::collection($sales),
