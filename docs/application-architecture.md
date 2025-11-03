@@ -637,18 +637,3 @@ DB::transaction {
     ↓
 Cache::forget() (invalidate inventory cache)
 ```
-
-### Event-Driven Flow (Alternative - Not Currently Used)
-
-```
-Sale Created
-    ↓
-SaleCompleted Event Dispatched
-    ↓
-UpdateInventoryAfterSale Listener (Queued)
-    ↓
-UpdateInventoryJob::dispatch()
-    ↓
-Update Inventory in Background
-```
-
