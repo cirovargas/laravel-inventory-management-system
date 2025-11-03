@@ -14,6 +14,9 @@ RUN chmod +x /usr/local/bin/install-php-extensions  \
       unzip \
       git \
       bash \
+      supervisor \
+      dcron \
+      libcap \
     && install-php-extensions \
       intl \
       pdo_pgsql \
@@ -30,7 +33,10 @@ RUN chmod +x /usr/local/bin/install-php-extensions  \
 
 ENV COMPOSER_ALLOW_SUPERUSER=1
 
+# Copy configuration files
 COPY ./env/php/php.ini /usr/local/etc/php/php.ini
+COPY ./env/php/supervisord.conf /etc/supervisord.conf
+COPY ./env/php/supervisor.d/ /etc/supervisor/conf.d/
 COPY . /app
 
 RUN cp .env.example .env && \
@@ -42,7 +48,24 @@ RUN cp .env.example .env && \
     php artisan config:cache && \
     php artisan event:cache && \
     php artisan route:cache
-#php artisan queue:work
 
+# Set up cron for Laravel scheduler
+RUN echo "* * * * * cd /app && php artisan schedule:run >> /dev/null 2>&1" > /etc/crontabs/root \
+    && mkdir -p /var/log/supervisor \
+    && mkdir -p /etc/supervisor/conf.d
 
-CMD [ "php", "artisan", "migrate", "--force", "--silent", "--quiet", "--no-interaction", "&&",  "php", "-d", "variables_order=EGPCS", "artisan", "octane:start", "--server=swoole", "--host=0.0.0.0", "--port=3000", "--workers=4", "--task-workers=6"]
+# Create entrypoint script
+RUN echo '#!/bin/bash' > /usr/local/bin/docker-entrypoint.sh \
+    && echo 'set -e' >> /usr/local/bin/docker-entrypoint.sh \
+    && echo '' >> /usr/local/bin/docker-entrypoint.sh \
+    && echo '# Run migrations' >> /usr/local/bin/docker-entrypoint.sh \
+    && echo 'php artisan migrate --force --no-interaction' >> /usr/local/bin/docker-entrypoint.sh \
+    && echo '' >> /usr/local/bin/docker-entrypoint.sh \
+    && echo '# Start cron in background' >> /usr/local/bin/docker-entrypoint.sh \
+    && echo 'crond -b -l 2' >> /usr/local/bin/docker-entrypoint.sh \
+    && echo '' >> /usr/local/bin/docker-entrypoint.sh \
+    && echo '# Start supervisord in foreground' >> /usr/local/bin/docker-entrypoint.sh \
+    && echo 'exec /usr/bin/supervisord -c /etc/supervisord.conf' >> /usr/local/bin/docker-entrypoint.sh \
+    && chmod +x /usr/local/bin/docker-entrypoint.sh
+
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
